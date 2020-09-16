@@ -11,6 +11,8 @@ program
 
 var dir = program.dir || process.cwd();
 var composerLockPath = path.join(dir, 'composer.lock');
+var gitRootPath = child_process.spawnSync('git', ['rev-parse', '--show-toplevel']).stdout.toString().trim()
+var relativeComposerLockPath = composerLockPath.replace(gitRootPath + '/', '')
 
 var origLock = getHeadComposerLock();
 var newLock = getComposerLock();
@@ -125,7 +127,7 @@ function getComposerLock() {
 
 function getHeadComposerLock() {
     return new Promise(function(resolve, reject) {
-	var p = child_process.spawn('git', ['show', 'HEAD:composer.lock'], {
+	var p = child_process.spawn('git', ['show', 'HEAD:' + relativeComposerLockPath], {
 	    cwd: dir
 	});
 	var data = '';
